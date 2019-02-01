@@ -249,12 +249,12 @@ class Search(Container):
         fields = [
             Delimiter(name='search main delim', value='?', fuzzable=fuzz_delims),
         ]
-        for part in search.split('&'):
+        for i, part in enumerate(search.split('&')):
             part = part.split('=')
             fields.append(Container(name='param_%s' % part[0], fields=[
-                String(name=part[0], value=part[0], fuzzable=fuzz_param),
+                String(name='search_%d_key' % i, value=part[0], fuzzable=fuzz_param),
                 Delimiter(value='=', fuzzable=fuzz_delims),
-                String(name=part[1], value=part[1], fuzzable=fuzz_value)
+                String(name='search_%d_value' % i, value=part[1], fuzzable=fuzz_value)
             ]))
         super(Search, self).__init__(name=name, fields=fields, fuzzable=fuzzable)
 
