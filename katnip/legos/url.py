@@ -254,9 +254,11 @@ class Search(Container):
         ]
         for i, part in enumerate(search.split('&')):
             part = part.split('=')
+            if len(part) != 2:
+                continue
             if len(fields) >= 2:
                 fields.append(Delimiter(name='search_delim_%d' % i, value='&', fuzzable=fuzz_delims))
-            fields.append(Container(name='param_%s' % part[0], fields=[
+            fields.append(Container(name='param_%d_%s' % (i, part[0]), fields=[
                 String(name='search_%d_key' % i, value=part[0], fuzzable=fuzz_param),
                 Delimiter(value='=', fuzzable=fuzz_delims),
                 String(name='search_%d_value' % i, value=part[1], fuzzable=fuzz_value)
