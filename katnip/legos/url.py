@@ -22,7 +22,10 @@ HTTP, HTTPS, FTP, FTPS
 
 .. todo:: URL fragments
 '''
-from urlparse import urlparse
+try:
+    from urlparse import urlparse
+except ModuleNotFoundError:
+    from urllib.parse import urlparse
 from kitty.model import Container, OneOf
 from kitty.model import BaseField, String, Delimiter, BitField, Group
 from kitty.model import ENC_STR_DEFAULT, ENC_INT_DEC
@@ -224,7 +227,7 @@ class HostName(Container):
         '''
         fields = []
         domain_labels = host.split('.')
-        if len(domain_labels):
+        if domain_labels:
             for i, domain_label in enumerate(domain_labels[:-1]):
                 fields.append(String(name='domain label %d' % i, value=domain_label))
                 fields.append(Delimiter(name='domain label delimiter %d' % i, value='.', fuzzable=fuzz_delims))
@@ -251,7 +254,11 @@ class Search(Container):
         ]
         for i, part in enumerate(search.split('&')):
             part = part.split('=')
-            fields.append(Container(name='param_%s' % part[0], fields=[
+            if len(part) != 2:
+                continue
+            if len(fields) >= 2:
+                fields.append(Delimiter(name='search_delim_%d' % i, value='&', fuzzable=fuzz_delims))
+            fields.append(Container(name='param_%d_%s' % (i, part[0]), fields=[
                 String(name='search_%d_key' % i, value=part[0], fuzzable=fuzz_param),
                 Delimiter(value='=', fuzzable=fuzz_delims),
                 String(name='search_%d_value' % i, value=part[1], fuzzable=fuzz_value)

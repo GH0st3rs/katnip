@@ -16,7 +16,7 @@
 # along with Katnip.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-
+from binascii import hexlify
 from katnip.legos import json as kjson
 from kitty.model import Template
 from kitty.model import String, UInt32
@@ -36,7 +36,7 @@ class JsonBooleanTests(BaseTestCase):
         t = warp_with_template(kjson.JsonBoolean(name='bool'))
         self.assertEqual(t.num_mutations(), 2)
         mutations = get_mutation_set(t)
-        self.assertEqual(mutations, set(['true', 'false']))
+        self.assertEqual(mutations, set([b'true', b'false']))
 
     def test_value_no_fuzzable_true(self):
         '''
@@ -46,7 +46,7 @@ class JsonBooleanTests(BaseTestCase):
         t = warp_with_template(kjson.JsonBoolean(name='bool', value=True, fuzzable=False))
         self.assertEqual(t.num_mutations(), 0)
         self.assertEqual(t.mutate(), False)
-        self.assertEqual(t.render().bytes, 'true')
+        self.assertEqual(t.render().bytes.decode(), 'true')
 
     def test_value_no_fuzzable_false(self):
         '''
@@ -56,7 +56,7 @@ class JsonBooleanTests(BaseTestCase):
         t = warp_with_template(kjson.JsonBoolean(name='bool', value=False, fuzzable=False))
         self.assertEqual(t.num_mutations(), 0)
         self.assertEqual(t.mutate(), False)
-        self.assertEqual(t.render().bytes, 'false')
+        self.assertEqual(t.render().bytes.decode(), 'false')
 
     def test_exception_value_not_bool(self):
         '''
@@ -109,7 +109,7 @@ class JsonStringTests(BaseTestCase):
         '''
         value = 'kitty'
         t = warp_with_template(kjson.JsonString(name='test', value=value, fuzzable=True))
-        res = t.render().bytes
+        res = t.render().bytes.decode()
         self.assertEqual(res, '"%s"' % value)
 
     def test_not_fuzzable_num_mutations_zero(self):
@@ -130,7 +130,7 @@ class JsonStringTests(BaseTestCase):
         self.assertEqual(t.num_mutations(), st.num_mutations())
         while t.mutate():
             st.mutate()
-            self.assertEqual(t.render().bytes, '"%s"' % st.render().bytes)
+            self.assertEqual(t.render().bytes, b'"%s"' % st.render().bytes)
 
 
 class JsonObjectTests(BaseTestCase):
@@ -294,7 +294,7 @@ class JsonArrayTests(BaseTestCase):
         t = warp_with_template(kjson.JsonArray(name='test', values=field_list))
         rendered = t.render().bytes
         self.logger.debug('rendered: %s', rendered)
-        self.logger.debug('rendered (hex): %s', rendered.encode('hex'))
+        self.logger.debug('rendered (hex): %s', hexlify(rendered).decode())
         res = json.loads(rendered)
         for i, j in zip(the_list, res):
             self.assertEqual(i, j)
@@ -308,7 +308,7 @@ class JsonArrayTests(BaseTestCase):
         t = warp_with_template(kjson.JsonArray(name='test', values=field_list))
         rendered = t.render().bytes
         self.logger.debug('rendered: %s', rendered)
-        self.logger.debug('rendered (hex): %s', rendered.encode('hex'))
+        self.logger.debug('rendered (hex): %s', hexlify(rendered).decode())
         res = json.loads(rendered)
         for i, j in zip(the_list, res):
             self.assertEqual(i, j)
@@ -322,7 +322,7 @@ class JsonArrayTests(BaseTestCase):
         t = warp_with_template(kjson.JsonArray(name='test', values=field_list))
         rendered = t.render().bytes
         self.logger.debug('rendered: %s', rendered)
-        self.logger.debug('rendered (hex): %s', rendered.encode('hex'))
+        self.logger.debug('rendered (hex): %s', hexlify(rendered).decode())
         res = json.loads(rendered)
         for i, j in zip(the_list, res):
             self.assertEqual(i, j)
@@ -336,7 +336,7 @@ class JsonArrayTests(BaseTestCase):
         t = warp_with_template(kjson.JsonArray(name='test', values=field_list))
         rendered = t.render().bytes
         self.logger.debug('rendered: %s', rendered)
-        self.logger.debug('rendered (hex): %s', rendered.encode('hex'))
+        self.logger.debug('rendered (hex): %s', hexlify(rendered).decode())
         res = json.loads(rendered)
         for i, j in zip(the_list, res):
             self.assertEqual(i, j)
@@ -351,7 +351,7 @@ class JsonArrayTests(BaseTestCase):
         t = warp_with_template(kjson.JsonArray(name='test', values=the_list))
         rendered = t.render().bytes
         self.logger.debug('rendered: %s', rendered)
-        self.logger.debug('rendered (hex): %s', rendered.encode('hex'))
+        self.logger.debug('rendered (hex): %s', hexlify(rendered).decode())
         res = json.loads(rendered)
         self.assertEqual(len(res), 10)
         for i in range(10):
@@ -372,7 +372,7 @@ class JsonArrayTests(BaseTestCase):
         t = warp_with_template(kjson.JsonArray(name='test', values=the_list))
         rendered = t.render().bytes
         self.logger.debug('rendered: %s', rendered)
-        self.logger.debug('rendered (hex): %s', rendered.encode('hex'))
+        self.logger.debug('rendered (hex): %s', hexlify(rendered).decode())
         res = json.loads(rendered)
         self.assertEqual(len(res), 10)
         for i in range(10):
@@ -386,7 +386,7 @@ class JsonArrayTests(BaseTestCase):
         t = warp_with_template(kjson.JsonArray(name='test', values=the_list))
         rendered = t.render().bytes
         self.logger.debug('rendered: %s', rendered)
-        self.logger.debug('rendered (hex): %s', rendered.encode('hex'))
+        self.logger.debug('rendered (hex): %s', hexlify(rendered).decode())
         res = json.loads(rendered)
         for i, j in zip(the_list, res):
             self.assertEqual(i, j)

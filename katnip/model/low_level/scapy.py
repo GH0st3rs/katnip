@@ -17,10 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Katnip.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
-from kitty.model import BaseField
-from kitty.model.low_level.encoder import ENC_STR_DEFAULT, StrEncoder
 import random
 from scapy.all import *
+from kitty.model import BaseField
+from kitty.model.low_level.encoder import ENC_STR_DEFAULT, StrEncoder
 
 
 class ScapyField(BaseField):
@@ -58,7 +58,7 @@ class ScapyField(BaseField):
         self._fuzz_count = fuzz_count
         # keep reference to the field for the _mutate method
         self._fuzz_packet = value
-        super(ScapyField, self).__init__(value=str(value), encoder=encoder, fuzzable=fuzzable, name=name)
+        super(ScapyField, self).__init__(value=value.build(), encoder=encoder, fuzzable=fuzzable, name=name)
         # reset random count
         random.seed(self._seed)
 
@@ -68,19 +68,17 @@ class ScapyField(BaseField):
         '''
         if self._fuzzable:
             return self._fuzz_count
-        else:
-            return 0
+        return 0
 
     def _mutate(self):
         # during mutation, all we really do is call str(self.fuzz_packet)
         # as scapy performs mutation each time str() is called...
-        self._current_value = str(self._fuzz_packet)
+        self._current_value = self._fuzz_packet.build()
 
     def reset(self):
         super(ScapyField, self).reset()
         # reset fuzz_packet to default status
         random.seed(self._seed)
-
 
     def get_info(self):
         info = super(ScapyField, self).get_info()
